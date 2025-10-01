@@ -30,35 +30,45 @@
 # r.incr("counters")
 # print(r.get("counters").decode())
 
-from fastapi import FastAPI
-import redis
-import time
+# from fastapi import FastAPI
+# import redis
+# import time
 
-app = FastAPI()
+# app = FastAPI()
 
-r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+# r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
-def fetch_weather(city: str) -> dict:
-    time.sleep(2)
-    return {
-        "city": city,
-        "temperature": 25,
-        "condition": "Sunny"
-    }
+# def fetch_weather(city: str) -> dict:
+#     time.sleep(2)
+#     return {
+#         "city": city,
+#         "temperature": 25,
+#         "condition": "Sunny"
+#     }
 
-@app.get("/weather/{city}")
-def get_weather(city: str):
-    cache_key = f"weather:{city}"
+# @app.get("/weather/{city}")
+# def get_weather(city: str):
+#     cache_key = f"weather:{city}"
 
-    if r.exists(cache_key):
-        data = r.hgetall(cache_key)
-        data["source"] = "redis-cache"
-        return data
+#     if r.exists(cache_key):
+#         data = r.hgetall(cache_key)
+#         data["source"] = "redis-cache"
+#         return data
 
-    data = fetch_weather(city)
+#     data = fetch_weather(city)
 
-    r.hset(cache_key, mapping=data)
-    r.expire(cache_key, 30)
+#     r.hset(cache_key, mapping=data)
+#     r.expire(cache_key, 30)
 
-    data["source"] = "api-call"
-    return data
+#     data["source"] = "api-call"
+#     return data
+
+# import redis 
+
+# r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
+
+# r.set("user:10", "Alice", ex=100)
+# print(r.get("user:10"))
+
+# r.set("user:10", "Alice+10s")
+# print(r.get("user:10")) 
