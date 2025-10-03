@@ -1,8 +1,8 @@
 import os, time
-from celery_app import app as celery_app
+from .celery_app import app as celery_app
 from PIL import Image, ImageDraw, ImageFont
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name='app.tasks.process_image')
 def process_image(self, filepath: str):
     try:
         im = Image.open(filepath).convert("RGBA") 
@@ -18,7 +18,6 @@ def process_image(self, filepath: str):
             font = ImageFont.load_default()
 
         text_color = (255, 255, 255, 128) 
-        
         try:
             bbox = draw.textbbox((0, 0), watermark_text, font=font)
             text_width = bbox[2] - bbox[0]

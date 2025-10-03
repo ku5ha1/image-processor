@@ -7,4 +7,6 @@ __pycache__/
 
 # app/test.py
 
-app/test.png
+app/test.png 
+
+static/
