@@ -1,8 +1,8 @@
 import os
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from app.tasks import process_image
+from .tasks import process_image
 from celery.result import AsyncResult
-from app.celery_app import app as celery_app
+from .celery_app import app as celery_app
 
 app = FastAPI()
 
@@ -25,7 +25,6 @@ async def upload_image(file: UploadFile = File(...)):
             status_code=400,
             detail="Attached file is not an image."
         )
-
     upload_dir = "uploads"
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
@@ -41,8 +40,24 @@ async def upload_image(file: UploadFile = File(...)):
 @app.get("/task-status/{task_id}")
 def get_task_status(task_id: str):
     task = AsyncResult(task_id, app=celery_app)
-    return {
-        "task_id": task_id,
-        "status": task.status,
-        "result": task.result  
-    }
+
+    if task.status == "PENDING":
+        return {"task_id": task_id, "status": task.status, "processed_image_url": None}
+
+    elif task.status == "SUCCESS":
+        processed_path = task.result 
+        processed_url = f"/static/{os.path.basename(processed_path)}"
+
+        return {
+            "task_id": task_id,
+            "status": task.status,
+            "processed_image_url": processed_url
+        }
+    elif task.status == "FAILURE":
+        return {
+            "task_id": task_id,
+            "status": task.status,
+            "error": str(task.result)
+        }
+    else:
+        return {"task_id": task_id, "status": task.status, "processed_image_url": None}
